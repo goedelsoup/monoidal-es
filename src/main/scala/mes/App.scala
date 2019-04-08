@@ -3,6 +3,8 @@ package mes
 import cats.Show
 import cats.effect._
 import cats.implicits._
+import fs2._
+import mes.domain._
 
 object App extends IOApp {
 
@@ -10,7 +12,8 @@ object App extends IOApp {
     Service[IO].use { implicit S =>
       import S._
 
-      val txs = Mock.TreatmentStream
+      val txs: Stream[IO, AdminEvent] = data
+        .generateAdmins
 
       val aggregates =
         txs.through(countByDrug)

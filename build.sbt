@@ -40,13 +40,15 @@ lazy val mes = (project in file("."))
 
       "io.chrisdavenport" %% "mules" % "0.2.0",
 
-      "io.chrisdavenport" %% "log4cats-core" % "0.3.0-M2",
-      "com.outr" %% "scribe" % "2.7.1",
-      "com.outr" %% "scribe-slf4j" % "2.7.1",
+      "io.chrisdavenport" %% "log4cats-core"  % "0.3.0-M2",
+      "io.chrisdavenport" %% "log4cats-slf4j" % "0.3.0-M2",
+      "org.slf4j" % "slf4j-api" % "1.7.25",
+      "ch.qos.logback" % "logback-classic" % "1.2.3",
 
       "org.typelevel" %% "mouse" % "0.20",
       "org.typelevel"  %% "squants" % "1.4.0",
 
+      "org.scalacheck" %% "scalacheck" % "1.14.0",
       "org.scalatest" %% "scalatest" % "3.0.5" % Test
     ) ++ Seq(
       "is.cir" %% "ciris-cats",
@@ -56,6 +58,13 @@ lazy val mes = (project in file("."))
 
     addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.6"),
     addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.2.4"),
+
+    initialCommands in console :=
+      s"""import cats.implicits._
+         |import mes._
+         |import mes.domain._
+         |import org.scalacheck._
+       """.stripMargin,
 
     dockerBaseImage := "adoptopenjdk/openjdk10:jdk-10.0.2.13-alpine-slim",
     dockerUpdateLatest := true,

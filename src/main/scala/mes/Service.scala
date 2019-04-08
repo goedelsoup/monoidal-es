@@ -5,10 +5,11 @@ import cats.effect._
 import cats.implicits._
 import fs2.Pipe
 import io.chrisdavenport.log4cats.Logger
+import io.chrisdavenport.log4cats.slf4j.Slf4jLogger
 import mes.service._
 import mes.sigma._
 
-sealed abstract class Service[F[_]: Sync](
+class Service[F[_]: Sync](
   val rxnorm: RxNormAlg[F],
   val log: Logger[F],
   val admin: AdminAlg[F]
@@ -37,5 +38,10 @@ sealed abstract class Service[F[_]: Sync](
 
 object Service {
 
-  def apply[F[_]: ConcurrentEffect: Timer]: Resource[F, Service[F]] = ???
+  def apply[F[_]: ConcurrentEffect: Timer]: Resource[F, Service[F]] =
+    for {
+      r <- Resource.liftF(RxNormAlg.interpreterForApi[F])
+      l  = Slf4jLogger.getLogger[F]
+      a  = AdminAlg[F]
+    } yield new Service[F](r, l, a)
 }

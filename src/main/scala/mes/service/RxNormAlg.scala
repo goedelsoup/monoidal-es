@@ -19,9 +19,11 @@ object RxNormAlg {
    */
   def interpreterForApi[F[_]](
     implicit S: Sync[F]
-  ): RxNormAlg[F] =
-    new RxNormAlg[F] {
-      def getDrugClass(id: DrugId): F[DrugClass] =
-        Sync[F].pure("platinum compound")
+  ): F[RxNormAlg[F]] =
+    S.delay {
+      new RxNormAlg[F] {
+        def getDrugClass(id: DrugId): F[DrugClass] =
+          Sync[F].pure("platinum compound")
+      }
     }
 }
