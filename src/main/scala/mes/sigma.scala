@@ -1,6 +1,5 @@
 package mes
 
-import cats.Show
 import cats.kernel._
 import cats.implicits._
 import mes.domain._
@@ -23,7 +22,12 @@ object sigma {
       new Monoid[Summary] {
         def empty: Summary = Summary(Map.empty, Map.empty, Map.empty)
 
-        def combine(s0: Summary, s1: Summary): Summary = ???
+        def combine(s0: Summary, s1: Summary): Summary =
+          Summary(
+            drugs      =      s0.drugs |+| s1.drugs,
+            classes    =    s0.classes |+| s1.classes,
+            modalities = s0.modalities |+| s1.modalities
+          )
       }
   }
 }

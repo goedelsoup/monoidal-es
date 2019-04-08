@@ -3,7 +3,6 @@ package mes
 import cats.Show
 import cats.effect._
 import cats.implicits._
-import mes.sigma._
 
 object App extends IOApp {
 
@@ -15,7 +14,7 @@ object App extends IOApp {
 
       val aggregates =
         txs.through(countByDrug)
-          .evalTap(saveToDb[Map[String, Double]])
+          .evalTap(saveToDb[IO, Map[String, Double]])
           .concurrently(
         txs.through(countByDrugClass))
           .concurrently(
@@ -25,6 +24,13 @@ object App extends IOApp {
 
     } as ExitCode.Success
 
-
-  def saveToDb[A](a: A)(implicit S: Show[A]): IO[Unit] = IO.unit
+  /*
+  A mock call to a data store, e.g. a database or blob store
+   */
+  private[this] def saveToDb[F[_]: Sync, A](a: A)
+                                           (implicit
+                                            S: Service[F],
+                                            H: Show[A])
+  : F[Unit] =
+    S.log.info(show"saving to db: $a")
 }
