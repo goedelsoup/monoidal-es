@@ -28,3 +28,5 @@ jobs:
       - run: cat /dev/null | sbt test:test
 
       - run: cat /dev/null | sbt docker:publishLocal
+
+      - run: cat /dev/null | sbt run

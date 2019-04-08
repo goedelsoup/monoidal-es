@@ -1,53 +1,58 @@
 package mes
 
-import cats.Show
+import cats.{Functor, Show}
 import cats.effect._
 import cats.implicits._
 import cats.kernel.Monoid
 import fs2.Pipe
 import io.chrisdavenport.log4cats.Logger
 import io.chrisdavenport.log4cats.slf4j.Slf4jLogger
-
 import mes.domain._
 import mes.service._
 import mes.sigma._
 
-class Service[F[_]: Sync](
+class Service[F[_]](
   val rxnorm: RxNormAlg[F],
   val log: Logger[F],
   val admin: AdminAlg[F]
 ) {
 
-  def countByDrug: Pipe[F, domain.AdminEvent, DrugReport] = _
+  def countByDrug(implicit F: Functor[F])
+  : Pipe[F, domain.AdminEvent, DrugReport] = _
     .map(_._2)
     .foldMap(admin.aggregateId)
     .evalTap(trace[Map[String, Double]])
 
-  val processDrugAggregate: Pipe[F, AdminEvent, Summary] = _
+  def processDrugAggregate(implicit F: Functor[F])
+  : Pipe[F, AdminEvent, Summary] = _
     .through(countByDrug)
     .evalTap(saveToDb[Map[String, Double]])
     .map(r => Monoid[Summary]
       .empty
       .copy(drugs = r))
 
-  def countByDrugClass: Pipe[F, domain.AdminEvent, ClassReport] = _
+  def countByDrugClass(implicit F: Functor[F])
+  : Pipe[F, domain.AdminEvent, ClassReport] = _
     .map(_._2)
     .evalMap(admin.aggregateClass(rxnorm))
     .foldMonoid
     .evalTap(trace[Map[String, Double]])
 
-  val processClassAggregate: Pipe[F, AdminEvent, Summary] = _
+  def processClassAggregate(implicit F: Functor[F])
+  : Pipe[F, AdminEvent, Summary] = _
     .through(countByDrugClass)
     .map(r => Monoid[Summary]
       .empty
       .copy(classes = r))
 
-  def countByModality: Pipe[F, domain.AdminEvent, ModalityReport] = _
+  def countByModality(implicit F: Functor[F])
+  : Pipe[F, domain.AdminEvent, ModalityReport] = _
     .map(_._2)
     .foldMap(admin.aggregateModality)
     .evalTap(trace[ModalityReport])
 
-  val processModalityAggregate: Pipe[F, AdminEvent, Summary] = _
+  def processModalityAggregate(implicit F: Functor[F])
+  : Pipe[F, AdminEvent, Summary] = _
     .through(countByModality)
     .map(r => Monoid[Summary]
       .empty

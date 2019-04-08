@@ -10,7 +10,7 @@ object App extends IOApp {
       import S._
 
       data
-        .generateAdmins(10000)
+        .generateAdmins(100000)
         .broadcastThrough(
           processDrugAggregate,
           processClassAggregate,

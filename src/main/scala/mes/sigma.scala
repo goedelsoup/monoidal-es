@@ -3,18 +3,25 @@ package mes
 import cats.Show
 import cats.kernel._
 import cats.implicits._
+
 import mes.domain._
 
 object sigma {
 
+  /*
+  There is a natural equality on Maps given we have:
+
+  1) Some cats.Eq[K]
+  2) Some cats.Monoid[V]
+   */
   type DrugReport     = Map[DrugId, Double]
   type ClassReport    = Map[DrugClass, Double]
   type ModalityReport = Map[Modality, Double]
 
   final case class Summary(
-    drugs: DrugReport,
-    classes: ClassReport,
-    modalities: ModalityReport
+    drugs: DrugReport = Map.empty,
+    classes: ClassReport = Map.empty,
+    modalities: ModalityReport = Map.empty
   )
 
   object Summary {
@@ -35,9 +42,18 @@ object sigma {
       (s0: Summary) =>
         s"""Summary
            |-------
+           |DRUGS
+           |>>>>>
            |${s0.drugs}
+           |<<<<<
+           |CLASSES
+           |>>>>>
            |${s0.classes}
+           |<<<<<
+           |MODALITIES
+           |>>>>>
            |${s0.modalities}
+           |---
          """.stripMargin
   }
 }

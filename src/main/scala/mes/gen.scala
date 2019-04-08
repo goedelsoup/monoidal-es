@@ -10,8 +10,14 @@ object gen {
     .alphaNumStr
     .map(Secret.apply)
 
-  val drugIdGen: Gen[DrugId] = Gen
-    .alphaUpperStr
+  val drugIdGen: Gen[DrugId] =
+    for {
+      a <- Gen.frequency(
+        98 -> Gen.const("C"),
+        2 -> Gen.const("R")
+      )
+      b <- Gen.listOfN(4, Gen.numChar).map(_.mkString)
+    } yield a + b
 
   val modalityGen: Gen[Modality] = Gen
     .oneOf(Intravenous, Oral, Intramuscular)
