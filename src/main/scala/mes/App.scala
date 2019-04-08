@@ -13,20 +13,12 @@ object App extends IOApp {
 
       val txs = Mock.TreatmentStream
 
-      val aggregates = txs
-        /*
-
-         */
-        .through(countByDrug)
-        .evalTap(saveToDb) concurrently txs
-        /*
-
-         */
-        .through(countByDrugClass) concurrently txs
-        /*
-
-         */
-        .through(countByModality)
+      val aggregates =
+        txs.through(countByDrug).evalTap(saveToDb)
+          .concurrently(
+        txs.through(countByDrugClass))
+          .concurrently(
+        txs.through(countByModality))
 
       aggregates.compile.drain
 
