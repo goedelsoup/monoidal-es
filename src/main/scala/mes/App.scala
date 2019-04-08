@@ -13,7 +13,7 @@ object App extends IOApp {
       import S._
 
       val txs: Stream[IO, AdminEvent] = data
-        .generateAdmins
+        .generateAdmins()
 
       val aggregates =
         txs.through(countByDrug)

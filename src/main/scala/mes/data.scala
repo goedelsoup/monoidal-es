@@ -7,13 +7,13 @@ import org.scalacheck._
 
 object data {
 
-  def generateAdmins: Stream[IO, AdminEvent] =
+  def generateAdmins(count: Int = 15): Stream[IO, AdminEvent] =
     Stream.fromIterator[IO, AdminEvent] {
 
       val patient: MRN = gen.mrnGen
         .pureApply(Gen.Parameters.default, rng.Seed.random())
 
-      val maybeValues = for (_ <- Range(1, 1000))
+      val maybeValues = for (_ <- Range(1, count))
         yield gen.adminGen(Gen.Parameters.default, rng.Seed.random())
 
       maybeValues
