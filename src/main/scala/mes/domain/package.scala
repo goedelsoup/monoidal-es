@@ -8,7 +8,5 @@ package object domain {
 
   type DrugId = String
 
-  type DrugClass = String
-
   type AdminEvent = (MRN, Administration)
 }

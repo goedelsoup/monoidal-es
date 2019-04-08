@@ -7,10 +7,12 @@ object App extends IOApp {
 
   def run(args: List[String]): IO[ExitCode] =
     Service[IO].use { implicit S =>
-      import S._
 
-      data
-        .generateAdmins(100000)
+      import S._
+      import data._
+
+      generateAdmins(
+        total = 50000)
         .broadcastThrough(
           processDrugAggregate,
           processClassAggregate,

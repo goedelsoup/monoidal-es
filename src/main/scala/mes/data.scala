@@ -1,9 +1,10 @@
 package mes
 
 import cats.effect.IO
+import ciris.Secret
 import fs2._
-import mes.domain._
 import org.scalacheck._
+import mes.domain._
 
 object data {
 
@@ -14,15 +15,22 @@ object data {
   : Stream[IO, AdminEvent] =
     Stream.fromIterator[IO, AdminEvent] {
 
-      val patient: MRN = gen.mrnGen
-        .pureApply(Gen.Parameters.default, rng.Seed.random())
+      val genPatients = Gen
+        .listOfN(patients, gen.mrnGen)
 
       val maybeValues = for (_ <- Range(1, total))
         yield gen.adminGen(Gen.Parameters.default, rng.Seed.random())
 
-      maybeValues
-        .flatten
-        .map(patient -> _)
-        .toIterator
+      val generator =
+        for {
+          patients <- genPatients
+          patient  <- Gen.oneOf(patients)
+        } yield {
+          maybeValues.flatten
+            .map(patient -> _)
+            .toIterator
+        }
+
+      generator.pureApply(Gen.Parameters.default, rng.Seed.random())
     }
 }

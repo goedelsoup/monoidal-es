@@ -11,47 +11,52 @@ import mes.domain._
 import mes.service._
 import mes.sigma._
 
-class Service[F[_]](
+class Service[F[_]: Functor](
   val rxnorm: RxNormAlg[F],
   val log: Logger[F],
   val admin: AdminAlg[F]
 ) {
 
-  def countByDrug(implicit F: Functor[F])
-  : Pipe[F, domain.AdminEvent, DrugReport] = _
+  def countByDrug
+  : Pipe[F, AdminEvent, DrugReport] = _
     .map(_._2)
     .foldMap(admin.aggregateId)
-    .evalTap(trace[Map[String, Double]])
+    .evalTap(
+      trace[Map[String, Double]])
 
-  def processDrugAggregate(implicit F: Functor[F])
+  def processDrugAggregate
   : Pipe[F, AdminEvent, Summary] = _
     .through(countByDrug)
-    .evalTap(saveToDb[Map[String, Double]])
+    .evalTap(
+      saveToDb[Map[String, Double]])
     .map(r => Monoid[Summary]
       .empty
       .copy(drugs = r))
 
-  def countByDrugClass(implicit F: Functor[F])
-  : Pipe[F, domain.AdminEvent, ClassReport] = _
+  def countByDrugClass
+  : Pipe[F, AdminEvent, ClassReport] = _
     .map(_._2)
-    .evalMap(admin.aggregateClass(rxnorm))
+    .evalMap(
+      admin.aggregateClass(rxnorm))
     .foldMonoid
-    .evalTap(trace[Map[String, Double]])
+    .evalTap(
+      trace[ClassReport])
 
-  def processClassAggregate(implicit F: Functor[F])
+  def processClassAggregate
   : Pipe[F, AdminEvent, Summary] = _
     .through(countByDrugClass)
     .map(r => Monoid[Summary]
       .empty
       .copy(classes = r))
 
-  def countByModality(implicit F: Functor[F])
-  : Pipe[F, domain.AdminEvent, ModalityReport] = _
+  def countByModality
+  : Pipe[F, AdminEvent, ModalityReport] = _
     .map(_._2)
     .foldMap(admin.aggregateModality)
-    .evalTap(trace[ModalityReport])
+    .evalTap(
+      trace[ModalityReport])
 
-  def processModalityAggregate(implicit F: Functor[F])
+  def processModalityAggregate
   : Pipe[F, AdminEvent, Summary] = _
     .through(countByModality)
     .map(r => Monoid[Summary]
@@ -63,7 +68,7 @@ class Service[F[_]](
    */
   private[this] def saveToDb[A](a: A)
                                (implicit
-                                H: Show[A]): F[Unit] =
+                                S: Show[A]): F[Unit] =
     log.debug(show"saving to db: $a")
 
   private[this] def trace[A](a: A)

@@ -9,7 +9,7 @@ import mes.domain._
 object sigma {
 
   /*
-  There is a natural equality on Maps given we have:
+  There is a natural Monoid[Map[K, V]] given we have:
 
   1) Some cats.Eq[K]
   2) Some cats.Monoid[V]
@@ -40,7 +40,7 @@ object sigma {
 
     implicit val summaryShow: Show[Summary] =
       (s0: Summary) =>
-        s"""Summary
+        show"""Summary
            |-------
            |DRUGS
            |>>>>>

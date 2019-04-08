@@ -1,8 +1,9 @@
 package mes
 
 import ciris.Secret
-import mes.domain._
 import org.scalacheck.Gen
+
+import mes.domain._
 
 object gen {
 
@@ -16,8 +17,16 @@ object gen {
         98 -> Gen.const("C"),
         2 -> Gen.const("R")
       )
-      b <- Gen.listOfN(4, Gen.numChar).map(_.mkString)
+      _b <- Gen.chooseNum(3, 7, 9)
+      b <- Gen.listOfN(_b, Gen.numChar).map(_.mkString)
     } yield a + b
+
+  val drugClassGen: Gen[DrugClass] =
+    Gen.oneOf(
+      Anthracycline,
+      Platinum,
+      TopoisomeraseI,
+      TopoisomeraseII)
 
   val modalityGen: Gen[Modality] = Gen
     .oneOf(Intravenous, Oral, Intramuscular)

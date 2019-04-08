@@ -23,7 +23,10 @@ object RxNormAlg {
     S.delay {
       new RxNormAlg[F] {
         def getDrugClass(id: DrugId): F[DrugClass] =
-          Sync[F].pure("platinum compound")
+          Sync[F].pure(mes.gen.drugClassGen.pureApply(
+            org.scalacheck.Gen.Parameters.default,
+            org.scalacheck.rng.Seed.random()
+          ))
       }
     }
 }
