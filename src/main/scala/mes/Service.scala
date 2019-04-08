@@ -6,6 +6,7 @@ import cats.implicits._
 import fs2.Pipe
 import io.chrisdavenport.log4cats.Logger
 import mes.service._
+import mes.sigma._
 
 sealed abstract class Service[F[_]: Sync](
   val rxnorm: RxNormAlg[F],
@@ -13,23 +14,24 @@ sealed abstract class Service[F[_]: Sync](
   val admin: AdminAlg[F]
 ) {
 
-  def countByDrug: Pipe[F, domain.AdminEvent, sigma.DrugReport] = _
+  def countByDrug: Pipe[F, domain.AdminEvent, DrugReport] = _
     .map(_._2)
     .foldMap(admin.aggregateId)
-    .evalTap(showReport)
+    .evalTap(showReport[Map[String, Double]])
 
-  def countByDrugClass: Pipe[F, domain.AdminEvent, sigma.ClassReport] = _
+  def countByDrugClass: Pipe[F, domain.AdminEvent, ClassReport] = _
     .map(_._2)
     .evalMap(admin.aggregateClass(rxnorm))
     .foldMonoid
-    .evalTap(showReport)
+    .evalTap(showReport[Map[String, Double]])
 
-  def countByModality: Pipe[F, domain.AdminEvent, sigma.ModalityReport] = _
+  def countByModality: Pipe[F, domain.AdminEvent, ModalityReport] = _
     .map(_._2)
     .foldMap(admin.aggregateModality)
-    .evalTap(showReport)
+    .evalTap(showReport[ModalityReport])
 
-  def showReport[A](a: A)(implicit S: Show[A]): F[Unit] =
+  def showReport[A](a: A)
+                   (implicit S: Show[A]): F[Unit] =
     log.info(S.show(a))
 }
 

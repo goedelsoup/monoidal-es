@@ -3,7 +3,7 @@ package mes
 import cats.Show
 import cats.effect._
 import cats.implicits._
-import fs2._
+import mes.sigma._
 
 object App extends IOApp {
 
@@ -14,7 +14,8 @@ object App extends IOApp {
       val txs = Mock.TreatmentStream
 
       val aggregates =
-        txs.through(countByDrug).evalTap(saveToDb)
+        txs.through(countByDrug)
+          .evalTap(saveToDb[Map[String, Double]])
           .concurrently(
         txs.through(countByDrugClass))
           .concurrently(

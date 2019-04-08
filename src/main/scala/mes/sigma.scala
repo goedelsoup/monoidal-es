@@ -1,5 +1,6 @@
 package mes
 
+import cats.Show
 import cats.kernel._
 import cats.implicits._
 import mes.domain._
