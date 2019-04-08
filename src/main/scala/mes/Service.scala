@@ -22,13 +22,13 @@ class Service[F[_]: Functor](
     .map(_._2)
     .foldMap(admin.aggregateId)
     .evalTap(
+      saveToDb[Map[String, Double]])
+    .evalTap(
       trace[Map[String, Double]])
 
   def processDrugAggregate
   : Pipe[F, AdminEvent, Summary] = _
     .through(countByDrug)
-    .evalTap(
-      saveToDb[Map[String, Double]])
     .map(r => Monoid[Summary]
       .empty
       .copy(drugs = r))

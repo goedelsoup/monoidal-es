@@ -12,7 +12,8 @@ object App extends IOApp {
       import data._
 
       generateAdmins(
-        total = 50000)
+        total = 80000 + 1,
+        patients = 5)
         .broadcastThrough(
           processDrugAggregate,
           processClassAggregate,

@@ -6,16 +6,20 @@ import mes.domain._
 import mes.sigma._
 
 /*
-A better description of this would be as follows:
-
-def aggregateId(a0: Administration)
-               (implicit I: cats.Id[F]): F[DrugReport] =
-  I.point(Map[DrugId, Double](a0.drug, a0.volume))
  */
 trait AdminAlg[F[_]] {
 
   /*
   Aggregate volume by ID
+
+  A better description of this would be as follows:
+
+
+  def aggregateId(a0: Administration)
+                 (implicit I: cats.Id[F]): F[DrugReport] =
+    I.point(Map[DrugId, Double](a0.drug, a0.volume))
+
+
    */
   def aggregateId(a0: Administration): DrugReport =
     Map[DrugId, Double](

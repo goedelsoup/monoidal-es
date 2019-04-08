@@ -15,7 +15,7 @@ object RxNormAlg {
 
   /*
   Here we imagine that we are calling out to an external micro-service to perform the
-  classification of a giving drug. Hence, we must wrap this in an effectful context
+  classification of a giving drug. Hence, we must wrap this in an effectful context Sync[F].
    */
   def interpreterForApi[F[_]](
     implicit S: Sync[F]

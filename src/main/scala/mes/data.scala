@@ -18,19 +18,21 @@ object data {
       val genPatients = Gen
         .listOfN(patients, gen.mrnGen)
 
-      val maybeValues = for (_ <- Range(1, total))
-        yield gen.adminGen(Gen.Parameters.default, rng.Seed.random())
+      val admins = (for (_ <- Range(1, total))
+        yield gen.adminGen(Gen.Parameters.default, rng.Seed.random()))
+        .flatten
 
       val generator =
         for {
           patients <- genPatients
           patient  <- Gen.oneOf(patients)
-        } yield {
-          maybeValues.flatten
+          result    = admins
             .map(patient -> _)
             .toIterator
-        }
+        } yield result
 
-      generator.pureApply(Gen.Parameters.default, rng.Seed.random())
+      generator.pureApply(Gen
+        .Parameters.default,
+        rng.Seed.random())
     }
 }
