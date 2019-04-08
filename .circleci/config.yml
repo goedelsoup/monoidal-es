@@ -1,0 +1,30 @@
+---
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/openjdk:8-jdk
+    working_directory: ~/repo
+
+    environment:
+      JVM_OPTS: -Xmx4G
+      TERM: dumb
+
+    steps:
+      - checkout
+      - setup_remote_docker
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "build.sbt" }}
+            - v1-dependencies-
+      - run: cat /dev/null | sbt test:compile
+
+      - save_cache:
+          paths:
+            - ~/.ivy2
+            - ~/.sbt
+          key: v1-dependencies-{{ checksum "build.sbt" }}
+
+      - run: cat /dev/null | sbt test:test
+
+      - run: cat /dev/null | sbt docker:publishLocal
