@@ -17,18 +17,30 @@ object App extends IOApp {
       val txs: Stream[IO, AdminEvent] = data
         .generateAdmins()
 
+      val processDrugAggregate: Pipe[IO, AdminEvent, Summary] = _
+        .through(countByDrug)
+        .evalTap(saveToDb[IO, Map[String, Double]])
+        .map(r => Monoid[Summary]
+          .empty
+          .copy(drugs = r))
+
+      val processClassAggregate: Pipe[IO, AdminEvent, Summary] = _
+        .through(countByDrugClass)
+        .map(r => Monoid[Summary]
+          .empty
+          .copy(classes = r))
+
+      val processModalityAggregate: Pipe[IO, AdminEvent, Summary] = _
+        .through(countByModality)
+        .map(r => Monoid[Summary]
+          .empty
+          .copy(modalities = r))
+
       txs
         .broadcastThrough(
-          (a: Stream[IO, AdminEvent]) => countByDrug(a)
-            .evalTap(saveToDb[IO, Map[String, Double]])
-            .map(r => Monoid[Summary].empty
-            .copy(drugs = r)),
-          (b: Stream[IO, AdminEvent]) => countByDrugClass(b)
-            .map(r => Monoid[Summary].empty
-            .copy(classes = r)),
-          (c: Stream[IO, AdminEvent]) => countByModality(c)
-            .map(r => Monoid[Summary].empty
-            .copy(modalities = r))
+          processDrugAggregate,
+          processClassAggregate,
+          processModalityAggregate
         )
         .foldMonoid
         .evalTap(r => log.info(r.show))
