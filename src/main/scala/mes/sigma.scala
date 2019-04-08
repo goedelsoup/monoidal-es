@@ -1,5 +1,6 @@
 package mes
 
+import cats.Show
 import cats.kernel._
 import cats.implicits._
 import mes.domain._
@@ -29,5 +30,14 @@ object sigma {
             modalities = s0.modalities |+| s1.modalities
           )
       }
+
+    implicit val summaryShow: Show[Summary] =
+      (s0: Summary) =>
+        s"""Summary
+           |-------
+           |${s0.drugs}
+           |${s0.classes}
+           |${s0.modalities}
+         """.stripMargin
   }
 }
