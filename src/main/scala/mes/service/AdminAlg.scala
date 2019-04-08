@@ -18,7 +18,7 @@ trait AdminAlg[F[_]] {
   Aggregate volume by ID
    */
   def aggregateId(a0: Administration): DrugReport =
-    Map[DrugId, Double](a0.drug, a0.volume)
+    Map[DrugId, Double](a0.drug -> a0.volume)
 
   def aggregateClass(R: RxNormAlg[F])
                     (a0: Administration)
@@ -27,7 +27,7 @@ trait AdminAlg[F[_]] {
     .map(c => Map(c -> a0.volume))
 
   def aggregateModality(a0: Administration): ModalityReport =
-    Map[Modality, Double](a0.modality, a0.volume)
+    Map[Modality, Double](a0.modality -> a0.volume)
 }
 
 object AdminAlg {
